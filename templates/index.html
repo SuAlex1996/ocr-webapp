@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片文字识别系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>图片文字识别系统</h1>
+            <p>支持中文识别和视觉状态分析</p>
+        </header>
+
+        <main>
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="fileInput" accept="image/*" hidden>
+                    <div class="upload-content">
+                        <svg class="upload-icon" viewBox="0 0 24 24" width="48" height="48">
+                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                        </svg>
+                        <p>点击或拖拽图片到此处</p>
+                        <p class="file-info">支持 PNG, JPG, JPEG, GIF, BMP, TIFF 格式</p>
+                    </div>
+                </div>
+                <button id="uploadBtn" class="btn btn-primary" disabled>开始识别</button>
+            </div>
+
+            <div class="preview-section" id="previewSection" style="display: none;">
+                <h3>图片预览</h3>
+                <img id="previewImage" alt="预览图片">
+            </div>
+
+            <div class="loading-section" id="loadingSection" style="display: none;">
+                <div class="spinner"></div>
+                <p>正在识别图片中的文字...</p>
+            </div>
+
+            <div class="result-section" id="resultSection" style="display: none;">
+                <h3>识别结果</h3>
+                
+                <div class="result-tabs">
+                    <button class="tab-btn active" data-tab="structured">结构化数据</button>
+                    <button class="tab-btn" data-tab="raw">原始文本</button>
+                    <button class="tab-btn" data-tab="visual">视觉分析</button>
+                    <button class="tab-btn" data-tab="json">JSON输出</button>
+                </div>
+
+                <div id="structuredTab" class="tab-content active">
+                    <div id="structuredData"></div>
+                </div>
+
+                <div id="rawTab" class="tab-content">
+                    <div class="raw-text">
+                        <pre id="rawText"></pre>
+                    </div>
+                </div>
+
+                <div id="visualTab" class="tab-content">
+                    <div id="visualAnalysis"></div>
+                </div>
+
+                <div id="jsonTab" class="tab-content">
+                    <div class="json-output">
+                        <pre id="jsonOutput"></pre>
+                    </div>
+                    <button id="copyBtn" class="btn btn-secondary">复制JSON</button>
+                </div>
+            </div>
+
+            <div class="error-section" id="errorSection" style="display: none;">
+                <div class="error-message">
+                    <h3>错误</h3>
+                    <p id="errorText"></p>
+                </div>
+                <button id="retryBtn" class="btn btn-primary">重试</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
