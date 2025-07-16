@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR Web 应用 - 图像文字识别与状态分析</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <h1>
+                <span class="icon">📱</span>
+                OCR Web 应用
+            </h1>
+            <p class="subtitle">移动网络监控界面文字识别与视觉状态分析</p>
+        </header>
+
+        <!-- 主要内容区 -->
+        <main class="main-content">
+            <!-- 上传区域 -->
+            <section class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-content">
+                        <div class="upload-icon">📁</div>
+                        <h3>选择或拖拽图像文件</h3>
+                        <p>支持 PNG、JPG、JPEG、GIF、BMP、TIFF 格式</p>
+                        <p class="file-size-hint">文件大小限制: 16MB</p>
+                        <button class="upload-btn" id="uploadBtn">选择文件</button>
+                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                    </div>
+                </div>
+                
+                <!-- 预览区域 -->
+                <div class="preview-area" id="previewArea" style="display: none;">
+                    <div class="preview-content">
+                        <h4>图像预览</h4>
+                        <img id="previewImage" src="" alt="预览图像">
+                        <div class="preview-actions">
+                            <button class="btn btn-primary" id="analyzeBtn">开始分析</button>
+                            <button class="btn btn-secondary" id="clearBtn">清除</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 处理状态 -->
+            <section class="status-section" id="statusSection" style="display: none;">
+                <div class="status-content">
+                    <div class="loading-spinner" id="loadingSpinner">
+                        <div class="spinner"></div>
+                        <p>正在处理图像...</p>
+                    </div>
+                    <div class="status-steps">
+                        <div class="step" id="step1">
+                            <span class="step-icon">1</span>
+                            <span class="step-text">OCR文字识别</span>
+                        </div>
+                        <div class="step" id="step2">
+                            <span class="step-icon">2</span>
+                            <span class="step-text">视觉状态分析</span>
+                        </div>
+                        <div class="step" id="step3">
+                            <span class="step-icon">3</span>
+                            <span class="step-text">数据结构化</span>
+                        </div>
+                        <div class="step" id="step4">
+                            <span class="step-icon">4</span>
+                            <span class="step-text">结果输出</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 结果展示 -->
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <div class="results-content">
+                    <div class="results-header">
+                        <h3>分析结果</h3>
+                        <div class="result-actions">
+                            <button class="btn btn-small" id="copyJsonBtn">复制JSON</button>
+                            <button class="btn btn-small" id="downloadJsonBtn">下载JSON</button>
+                        </div>
+                    </div>
+
+                    <!-- 结果标签页 -->
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="summary">概览</button>
+                        <button class="tab-btn" data-tab="network">网络信息</button>
+                        <button class="tab-btn" data-tab="operators">运营商状态</button>
+                        <button class="tab-btn" data-tab="json">JSON数据</button>
+                    </div>
+
+                    <!-- 概览标签页 -->
+                    <div class="tab-content active" id="summaryTab">
+                        <div class="summary-grid">
+                            <div class="summary-card">
+                                <h4>识别文字</h4>
+                                <p id="extractedText">-</p>
+                            </div>
+                            <div class="summary-card">
+                                <h4>当前运营商</h4>
+                                <p id="activeOperator">-</p>
+                            </div>
+                            <div class="summary-card">
+                                <h4>网络类型</h4>
+                                <p id="networkType">-</p>
+                            </div>
+                            <div class="summary-card">
+                                <h4>信号强度</h4>
+                                <p id="signalStrength">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 网络信息标签页 -->
+                    <div class="tab-content" id="networkTab">
+                        <div class="network-info">
+                            <div class="info-group">
+                                <h4>信号强度</h4>
+                                <div class="signal-stats" id="signalStats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">RSRP:</span>
+                                        <span class="stat-value" id="rsrpValue">-</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">RSRQ:</span>
+                                        <span class="stat-value" id="rsrqValue">-</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">SINR:</span>
+                                        <span class="stat-value" id="sinrValue">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="info-group">
+                                <h4>测速结果</h4>
+                                <div class="speed-stats" id="speedStats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Ping:</span>
+                                        <span class="stat-value" id="pingValue">-</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">下载:</span>
+                                        <span class="stat-value" id="downloadValue">-</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">上传:</span>
+                                        <span class="stat-value" id="uploadValue">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 运营商状态标签页 -->
+                    <div class="tab-content" id="operatorsTab">
+                        <div class="operators-status">
+                            <h4>运营商视觉状态分析</h4>
+                            <div class="operators-grid" id="operatorsGrid">
+                                <!-- 动态生成运营商状态卡片 -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- JSON数据标签页 -->
+                    <div class="tab-content" id="jsonTab">
+                        <div class="json-container">
+                            <pre id="jsonOutput">-</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 错误信息 -->
+            <section class="error-section" id="errorSection" style="display: none;">
+                <div class="error-content">
+                    <div class="error-icon">⚠️</div>
+                    <h3>处理失败</h3>
+                    <p id="errorMessage">-</p>
+                    <button class="btn btn-primary" id="retryBtn">重试</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部 -->
+        <footer class="footer">
+            <p>&copy; 2024 OCR Web 应用 - 支持中文和英文文字识别，具备视觉状态分析功能</p>
+        </footer>
+    </div>
+
+    <!-- 功能说明模态框 -->
+    <div class="modal" id="helpModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>功能说明</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="help-content">
+                    <h4>主要功能</h4>
+                    <ul>
+                        <li>🔍 <strong>文字识别:</strong> 支持中文和英文文字的OCR识别</li>
+                        <li>🎨 <strong>视觉状态分析:</strong> 分析文字亮度，识别激活状态</li>
+                        <li>📊 <strong>数据结构化:</strong> 将识别结果转换为结构化JSON数据</li>
+                        <li>📱 <strong>移动网络监控:</strong> 专门优化移动网络监控界面的识别</li>
+                    </ul>
+                    
+                    <h4>支持的图像格式</h4>
+                    <p>PNG、JPG、JPEG、GIF、BMP、TIFF</p>
+                    
+                    <h4>视觉状态识别原理</h4>
+                    <p>通过分析文字区域的亮度、对比度和清晰度，判断文字的激活状态。亮度较高的文字通常表示当前激活或选中状态。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 帮助按钮 -->
+    <button class="help-btn" id="helpBtn" title="功能说明">?</button>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
